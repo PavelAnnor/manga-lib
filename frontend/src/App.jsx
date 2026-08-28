@@ -5,6 +5,7 @@ import Navbar from "./components/custom/Navbar.jsx";
 
 //Page Imports
 import Landing from "./pages/Landing.jsx";
+import Login from "./pages/Login.jsx";
 
 
 import {navbarLinks} from "./data/navbarLinks.js"
@@ -23,6 +24,12 @@ export default function App(){
               subText="Create libraries, notes, and track progress, all in one
                 centralized application."
             />
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <Login />
           }
         />
       </Routes>

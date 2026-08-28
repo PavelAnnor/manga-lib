@@ -114,13 +114,14 @@
     --sidebar-accent: oklch(0.269 0 0);
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --sidebar-ring: oklch(49.913% 0.24711 263.58);
 }
 
 .dark-mode{
   --background: oklch(0% 0 0);
   --primary-border: white;
   --primary-text: white;
+  --secondary-text:rgb(140, 140, 152);
 
   --navbar-bg:black;
 }
@@ -129,6 +130,7 @@
   --background: oklch(92.874% 0.00106 11.666);
   --primary-border: black;
   --primary-text: rgb(3, 3, 3);
+  --secondary-text: rgb(84, 84, 84);
 
 
     --navbar-bg: white;

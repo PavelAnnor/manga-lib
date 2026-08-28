@@ -28,7 +28,9 @@ export default function Navbar({links}){
         aria-label="Main"
       >
         <div className="h-full flex items-center text-[var(--primary-text)]  gap-5 ">
-          <p className="md:text-2xl text-lg text-[#0404fa]">Manga Lib</p>
+          <Link to="/">
+            <p className="md:text-2xl text-lg text-[#0404fa]">Manga Lib</p>
+          </Link>
           <div className="flex gap-4 ">
             {links.map((l) => (
               <Link to={l.href} key={l.href}>
@@ -41,7 +43,7 @@ export default function Navbar({links}){
         </div>
         <div className="h-full flex items-center text-[var(--primary-text)] gap-10 items-center">
           <div className="gap-3 flex">
-            <Link>
+            <Link to="/login">
               <Button
                 size=""
                 className="bg-[#48047f] border border-[var(--primary-border)]"
@@ -50,7 +52,7 @@ export default function Navbar({links}){
               </Button>
             </Link>
 
-            <Link>
+            <Link to="/register">
               <Button
                 size=""
                 className="bg-[#48047f] border border-[var(--primary-border)]"
