@@ -27,13 +27,20 @@ APP.use(
 
 
 
+
 //Middleware to see information on request 
 APP.use((req, res, next) => {
   console.log(`Getting a ${req.method} request from ${req.url}.`);
-  console.log(`The body is: `);
+  console.log(`The body is:`);
   console.log(req.body);
   next();
 });
+
+
+
+
+
+
 
 
 
