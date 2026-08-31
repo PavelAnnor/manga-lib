@@ -5,7 +5,7 @@ export default function FormWrapper(props) {
       <div className="w-full  bg-red-500 flex   ">
         <img
           src="./sauskeEyes.jpeg"
-          className="w-[100%] h-[100%] border-b-2 border-[var(--primary-border-color)]"
+          className="w-[100%] h-[100%] border-b-2 border-[var(--primary-border)]"
         ></img>
       </div>
       {props.children}

@@ -124,16 +124,24 @@
   --secondary-text:rgb(140, 140, 152);
 
   --navbar-bg:black;
+
+  --card-background: rgb(10, 10, 10);
+  --card-border:rgb(95, 94, 94);
+  --card-shadow: blue;
 }
 
 .light-mode{
-  --background: oklch(92.874% 0.00106 11.666);
+  --background: oklch(95.367% 0.00212 14.381);
   --primary-border: black;
   --primary-text: rgb(3, 3, 3);
   --secondary-text: rgb(84, 84, 84);
 
 
     --navbar-bg: white;
+
+    --card-background: rgb(247, 246, 246);
+    --card-border: black;
+    --card-shadow:blue;
 }
 
 @layer base {

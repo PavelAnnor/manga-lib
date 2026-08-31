@@ -4,6 +4,9 @@ import express from "express"
 import cors from "cors"
 
 
+import connectDB from "./conn.js"
+
+
 //Important variables 
 const APP = express()
 const PORT = 3000 || process.env.PORT
@@ -26,6 +29,10 @@ APP.use(
 );
 
 
+//Import routes
+import userRoutes from "./routes/userRoutes.js";
+
+
 
 
 //Middleware to see information on request 
@@ -37,16 +44,14 @@ APP.use((req, res, next) => {
 });
 
 
+APP.use("/api/users", userRoutes);
 
 
 
-
-
-
-
-APP.use((err,req,res,next)=>{
+APP.use((err, req, res, next) => {
   console.log('Error middleware triggered')
   console.error(err.message)
+  res.status(500).json({ message: "Internal server error.", payload: null, error: err.message })
 })
 
 
@@ -54,5 +59,6 @@ APP.use((err,req,res,next)=>{
 
 APP.listen(PORT,()=>{
     console.log(`Server is listening on port: ${PORT}`)
+    connectDB()
 })
 

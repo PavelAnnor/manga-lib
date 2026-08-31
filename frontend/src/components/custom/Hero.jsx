@@ -8,8 +8,8 @@ export default function Hero({mainText,subText}){
     const { theme } = useContext(ThemeContext);
 
     return (
-      <main className="w-[100%] flex aspect-6/3">
-        <section className=" h-full w-45/100 items-center  text-[var(--primary-text)] flex p-5 md:p-7">
+      <main className="w-[100%] flex aspect-6/3 p-5 md:p-7">
+        <section className=" h-full w-45/100 items-center  text-[var(--primary-text)] flex ">
           <div className="">
             <h1 className="text-3xl  md:text-3xl lg:text-5xl mb-3 xl:text-6xl ">
               {mainText}
