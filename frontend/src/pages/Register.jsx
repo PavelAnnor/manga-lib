@@ -2,11 +2,16 @@ import FormWrapper from "../components/custom/FormWrapper.jsx";
 import FormInput from "../components/custom/FormInput.jsx";
 
 import {Button }from "../components/ui/Button.jsx";
+import { UserContext } from "../components/contextWrappers/UserContext.jsx";
 
-import { useState } from "react";
+import { useState,useContext } from "react";
+
+
+import { createUser } from "../util/backendAPI.js";
 
 export default function Register() {
-
+    
+  const { setUser } = useContext(UserContext);
 
     // State to track the validity of each input field
     const [valid, setValid] = useState({
@@ -21,7 +26,7 @@ export default function Register() {
      const [feedback, setfeedback] = useState("");
 
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
       e.preventDefault();
 
       //check if one of them is false, abort the Registration attempt if so
@@ -34,7 +39,19 @@ export default function Register() {
       //Put the form data in an object I can send to backend
       const formData = new FormData(e.target);
       const formValues = Object.fromEntries(formData.entries());
-      console.log(formValues);
+
+      //If everythign is good, send the registeration request
+      const response = await createUser(formValues);
+
+      //if the login request failed, tell the user and log the error
+      if (!response.success) {
+        console.log(response.error);
+        setfeedback(response.message);
+        return;
+      }
+      setfeedback("");
+      setUser(response.payload.user);
+      return;
     }
 
     // Validation functions for each name field, checking just to make sure they are not empty
@@ -123,14 +140,14 @@ export default function Register() {
         >
           <FormInput
             type="text"
-            name="fName"
+            name="firstName"
             placeholder="First Name"
             validate={validateName}
           ></FormInput>
 
           <FormInput
             type="text"
-            name="lName"
+            name="lastName"
             placeholder="Last Name"
             validate={validateName}
           ></FormInput>

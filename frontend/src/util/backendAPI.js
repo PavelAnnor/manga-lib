@@ -5,12 +5,14 @@ const backendAPI = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
+
 });
 
 async function testBackendAPI() {
 
     try{
-        const response =  await backendAPI.get("/test");
+        const response =  await backendAPI.get("/refresh");
         console.log(response.data)
     }
 
@@ -22,5 +24,47 @@ async function testBackendAPI() {
 }
 
 
+//function to send post request to backend api with log in recrieidntals 
+async function loginUser(credentials){
 
-export {testBackendAPI};
+  try {
+    const response = await backendAPI.post("users/login-user",credentials);
+    return response.data
+  } catch (error) {
+
+   
+    console.log(error.message);
+
+     //if the error is from backend, log the error and return the response
+     if(error.response){
+     return error.response.data;
+     }
+    
+  }
+
+}
+
+
+
+async function createUser(credentials){
+
+
+   try {
+     const response = await backendAPI.post("users/create-user", credentials);
+     return response.data;
+   } catch (error) {
+     console.log(error.message);
+
+     //if the error is from backend, log the error and return the response
+     if (error.response) {
+       return error.response.data;
+     }
+   }
+}
+
+
+
+
+
+
+export {testBackendAPI,loginUser,createUser};

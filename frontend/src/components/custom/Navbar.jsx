@@ -42,25 +42,31 @@ export default function Navbar({links}){
           </div>
         </div>
         <div className="h-full flex items-center text-[var(--primary-text)] gap-10 items-center">
-          <div className="gap-3 flex">
-            <Link to="/login">
-              <Button
-                size=""
-                className="bg-[#48047f] border border-[var(--primary-border)]"
-              >
-                Login
-              </Button>
-            </Link>
+          {!user && (
+            <div className="gap-3 flex">
+              <Link to="/login">
+                <Button
+                  size=""
+                  className="bg-[#48047f] border border-[var(--primary-border)]"
+                >
+                  Login
+                </Button>
+              </Link>
 
-            <Link to="/register">
-              <Button
-                size=""
-                className="bg-[#48047f] border border-[var(--primary-border)]"
-              >
-                Register
-              </Button>
-            </Link>
-          </div>
+              <Link to="/register">
+                <Button
+                  size=""
+                  className="bg-[#48047f] border border-[var(--primary-border)]"
+                >
+                  Register
+                </Button>
+              </Link>
+            </div>
+          )}
+
+          {user && (
+            <p className="md:text-sm text-xs">Welcome {user.username}</p>
+          )}
 
           <div className="flex gap-2 items-center">
             <Switch

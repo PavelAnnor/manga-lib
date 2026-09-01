@@ -2,6 +2,7 @@
 import "dotenv/config"
 import express from "express"
 import cors from "cors"
+import cookieParser from "cookie-parser";
 
 
 import connectDB from "./conn.js"
@@ -9,7 +10,7 @@ import connectDB from "./conn.js"
 
 //Important variables 
 const APP = express()
-const PORT = 3000 || process.env.PORT
+const PORT =  process.env.PORT || 3000
 const allowedOrigins = [
   "http://localhost:5173"
 ];
@@ -18,7 +19,7 @@ const allowedOrigins = [
 //Use of middleware
 APP.use(express.json())
 APP.use(express.urlencoded({extended:true}))
-
+APP.use(cookieParser());
 //CORS middleware to allow requests from the frontend
 APP.use(
   cors({
@@ -45,6 +46,12 @@ APP.use((req, res, next) => {
 
 
 APP.use("/api/users", userRoutes);
+
+
+APP.get("/api/refresh",(req,res)=>{
+  console.log(req.cookies)
+  res.json({message:"Refresh endpoint"})
+})
 
 
 
