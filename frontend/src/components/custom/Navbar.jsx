@@ -7,6 +7,8 @@ import {useContext,useEffect} from "react";
 import {ThemeContext} from "../contextWrappers/ThemeContext.jsx";
 import {UserContext} from "../contextWrappers/UserContext.jsx";
 
+import { logoutUser } from "../../util/backendAPI.js";
+
 
 
 
@@ -15,9 +17,15 @@ export default function Navbar({links}){
 
 
 
+    async function handleLogOut(){
+
+      const response = logoutUser()
+      setUser(null)
+     
+    }
    
 
-    const {user} = useContext(UserContext);
+    const {user,setUser} = useContext(UserContext);
     const {theme, setTheme} = useContext(ThemeContext);
 
 
@@ -65,10 +73,13 @@ export default function Navbar({links}){
           )}
 
           {user && (
-            <p className="md:text-sm text-xs">Welcome {user.username}</p>
+            <>
+              <p className="md:text-sm text-xs">Welcome {user.username}</p>
+              
+            </>
           )}
 
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-3 items-center">
             <Switch
               defaultChecked={true}
               className="data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-gray-200"
@@ -79,6 +90,15 @@ export default function Navbar({links}){
             <p className="  md:text-sm text-xs">
               {theme === "dark-mode" ? "Dark" : "Light"}
             </p>
+            {user && (
+              <Button
+                size=""
+                className="bg-[#48047f] border border-[var(--primary-border)]"
+                onClick = {handleLogOut}
+              >
+                Logout
+              </Button>
+            )}
           </div>
         </div>
       </nav>

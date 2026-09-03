@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken"
 function createAccessToken(payload) {
 
    
-    const token = jwt.sign(payload,process.env.ACCESS_TOKEN_SECRET)
+    const token = jwt.sign(payload,process.env.ACCESS_TOKEN_SECRET,{expiresIn: "15m"});
     return token
     
 }

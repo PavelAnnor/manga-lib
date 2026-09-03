@@ -39,6 +39,14 @@ async function loginUser(credentials){
      if(error.response){
      return error.response.data;
      }
+
+
+     return {
+      success: false,
+          message: "Network Error",
+          payload: null,
+          error: error.message}
+   
     
   }
 
@@ -59,7 +67,42 @@ async function createUser(credentials){
      if (error.response) {
        return error.response.data;
      }
+
+     //If its here (or backend isnt running properly)
+     return {
+      success: false,
+          message: "Network Error",
+          payload: null,
+          error: error.message}
    }
+}
+
+
+
+async function logoutUser(){
+
+
+   try {
+    //attempt a logout post request with emoty body
+     const response = await backendAPI.post("users/logout-user", {});
+     return response.data;
+   } catch (error) {
+     console.log(error.message);
+
+     //if the error is from backend, log the error and return the response
+     if (error.response) {
+       return error.response.data;
+     }
+
+     //If its here (or backend isnt running properly)
+     return {
+       success: false,
+       message: "Network Error",
+       payload: null,
+       error: error.message,
+     };
+   }
+
 }
 
 
@@ -67,4 +110,4 @@ async function createUser(credentials){
 
 
 
-export {testBackendAPI,loginUser,createUser};
+export {testBackendAPI,loginUser,createUser,logoutUser};

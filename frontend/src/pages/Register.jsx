@@ -5,13 +5,16 @@ import {Button }from "../components/ui/Button.jsx";
 import { UserContext } from "../components/contextWrappers/UserContext.jsx";
 
 import { useState,useContext } from "react";
+import { useNavigate } from "react-router";
 
 
 import { createUser } from "../util/backendAPI.js";
 
 export default function Register() {
+
+  const navi = useNavigate();
     
-  const { setUser } = useContext(UserContext);
+  const { setUser,setAccessToken } = useContext(UserContext);
 
     // State to track the validity of each input field
     const [valid, setValid] = useState({
@@ -49,8 +52,11 @@ export default function Register() {
         setfeedback(response.message);
         return;
       }
-      setfeedback("");
+
+     
       setUser(response.payload.user);
+      setAccessToken(response.payload.accessToken)
+      navi("/");
       return;
     }
 

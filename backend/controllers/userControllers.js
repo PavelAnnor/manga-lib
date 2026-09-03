@@ -34,7 +34,7 @@ async function createUser(req, res) {
 
     console.log(error.message)
     if (error.message === "That username already exists."){
-      res.status(400).json({
+      res.status(409).json({
         success: false,
         message: "Username already in use",
         payload: null,
@@ -44,7 +44,7 @@ async function createUser(req, res) {
     }
 
       if(error.message==="That email is already in use."){
-        res.status(400).json({
+        res.status(409).json({
           success: false,
           message: "Email already in use",
           payload: null,
@@ -57,7 +57,7 @@ async function createUser(req, res) {
         .status(400)
         .json({
           success: false,
-          message: "Username or email already in use",
+          message: "Unable to create user, check your input and try again.",
           payload: null,
           error: error.message,
         });
@@ -127,4 +127,31 @@ catch (error){
 
 }
 
-export { createUser,loginUser };
+
+
+async function logoutUser(req, res) {
+  try {
+    //Clear the refresh token cookie
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      path: "/api/refresh"
+    });
+
+    //Send a success response
+    res.status(200).json({
+      success: true,
+      message: "Successfully logged out.",
+      payload: null,
+      error: null
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to log out user.",
+      payload: null,
+      error: error.message
+    });
+  }
+}
+
+export { createUser, loginUser, logoutUser };

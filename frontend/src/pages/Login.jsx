@@ -1,6 +1,7 @@
 import FormWrapper from "../components/custom/FormWrapper.jsx";
 import FormInput from "../components/custom/FormInput.jsx";
 import { useState,useContext } from "react";
+import { useNavigate } from "react-router";
 
 
 import {UserContext} from "../components/contextWrappers/UserContext.jsx";
@@ -11,7 +12,8 @@ import {Button }from "../components/ui/Button.jsx";
 import { loginUser,testBackendAPI } from "../util/backendAPI.js";
 
 export default function Login() { 
-  const { setUser } = useContext(UserContext);
+  const navi = useNavigate()
+  const { setUser,setAccessToken } = useContext(UserContext);
 
   const [feedback, setfeedback] = useState("");
 
@@ -37,6 +39,7 @@ export default function Login() {
          //if everythign is good, send the log in request 
          const response = await loginUser(formValues)
 
+        
 
          //if the login request failed, tell the user and log the error
          if(!response.success){
@@ -44,8 +47,10 @@ export default function Login() {
           setfeedback(response.message);
           return;
          }
-         setfeedback("")
+        
          setUser(response.payload.user);
+         setAccessToken(response.payload.accessToken);
+         navi("/")
          return
        
 

@@ -7,16 +7,22 @@ export const UserContext = createContext(null);
 export default function UserContextProvider(props){
   const [user, setUser] = useState(null);  //State variable to hold user data (username, id, email, etc.)
   const [mangaData, setMangaData] = useState(null); //State variable to hold manga data (title, author, chapters, etc.)
+  const [accessToken, setAccessToken] = useState(null); //State variable to hold the access token
+
 
   //use effect to update the user state when the component mounts or when the user prop changes
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setAccessToken(null);
+      return;
+    }
+    
 
     //add the fucntionality to make a fetch request to the backend to get the user data and set it to the user state variable later
   }, [user]);
 
   return (
-    <UserContext.Provider value={{ user, setUser, mangaData, setMangaData }}>
+    <UserContext.Provider value={{ user, setUser, mangaData, setMangaData, accessToken, setAccessToken }}>
       {props.children}
     </UserContext.Provider>
   );
