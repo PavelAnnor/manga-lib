@@ -19,8 +19,16 @@ export default function Navbar({links}){
 
     async function handleLogOut(){
 
-      const response = logoutUser()
-      setUser(null)
+      const response = await logoutUser()
+     
+      if(response.success){
+        setUser(null);
+        return
+      }
+
+      else{
+        return
+      }
      
     }
    
