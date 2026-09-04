@@ -4,106 +4,172 @@ import RefreshTokenModel from "../models/refreshTokensModel.js";
 import { createRefreshToken,createAccessToken} from "../util/token.js";
 import { randomUUID } from "crypto";
 
-//Function to create a new user in Mongo, returning the safe user data (without password) and JWT tokens
-async function createUser(req, res) {
-  try {
 
-    //try to create the user in the database
-    // const response = await UserModel.create(req.body);
 
-      let safeUser;
+function createUser  (req, res){
 
-     const responseTest = UserModel.create(req.body).then( (response)=>{
+ 
+  let aToken;
+  let rToken;
 
-     
-      const { password, ...safeCredentials } = response.toObject();
-      safeUser=safeCredentials;
-       console.log(safeCredentials);
-       const now = new Date();
-       const thirtyDaysLater = new Date(
-         now.getTime() + 30 * 24 * 60 * 60 * 1000,
-       );
-        const response2 =  RefreshTokenModel.create({
-       jti: jti,
-       userId: safeCredentials._id,
-       expires: thirtyDaysLater})
-     })
-    // const { password, ...safeUser } = response.toObject();
+  //Create random UUID to be stored as a jti claim
+  const jti = randomUUID();
 
-    //If its successful generate a random uuid and store it as a claim in the refresh token
-    const jti = randomUUID();
+  //Create a userDocument in the DB
+  const response = UserModel.create(req.body).then((response) => {
+    //when that resolves, extract all the informafion except the password
+    const { password, ...safeUser } = response.toObject();
 
-    // const refreshToken = createRefreshToken({ safeUser,jti: jti });
+    //genrate an access token
+    const accessToken = createAccessToken({ safeUser });
+    aToken=accessToken
+    console.log("Access token")
+     console.log(accessToken);
 
-    //Set the expiry for 30 days 
-    // const now = new Date();
-    // const thirtyDaysLater = new Date(now.getTime() + 30*24*30 * 60 * 1000);
+    //generate a refreshToken
+    const refreshToken = createRefreshToken({ safeUser, jti: jti });
+    rToken=refreshToken
+     console.log("Refresh token");
+      console.log(refreshToken);
+
+      //add a jti property 
+      safeUser.jti = jti
+    
 
    
-    // //Store the jti in mongoDB
-    //  const response2 = await RefreshTokenModel.create({
-    //    jti: jti,
-    //    userId: safeUser.userId,
-    //    expires: thirtyDaysLater,
-    //  });
 
 
+    return safeUser
 
-    //genrate an access token 
-    // const accessToken = createAccessToken({ safeUser });
+   
+  }).then(
 
-    //res.cookie the refresh token
-    // res.cookie("refreshToken", refreshToken, {
-    //   httpOnly: true,
-    //   path: "/api/refresh",
-    //   maxAge: 7 * 24 * 60 * 60 * 1000,
-    //   secure: process.env.NODE_ENV === "production",
-    //   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    // });
+    (safeUser) => {
+      //When the intial call to user collection is done and susccessful 
+      //Make a call to the db to create the refresh token
 
-    //res.json the response with the safe user data and JWT access tokens
-    // res.status(201).json({
-    //   success:true,
-    //   message: "User created successfully.",
-    //   payload: { user: safeUser, accessToken: accessToken },
-    //   error: null,
-    // });
+      //Set the expiry for 30 days
+      const now = new Date();
+      const thirtyDaysLater = new Date(
+        now.getTime() + 30 * 24 * 60 * 60 * 1000,
+      );
+      
+      const response = RefreshTokenModel.create({
+        jti: safeUser.jti,
+        userId: safeUser._id,
+        expires: thirtyDaysLater,
+      })
 
-    res.json("test")
-  } catch (error) {
 
-    console.log(error.message)
-    if (error.message === "That username already exists."){
-      res.status(409).json({
-        success: false,
-        message: "Username already in use",
-        payload: null,
-        error: error.message,
-      });
-      return
+      return safeUser
     }
+    
+    ).then(
 
-      if(error.message==="That email is already in use."){
-        res.status(409).json({
-          success: false,
-          message: "Email already in use",
-          payload: null,
-          error: error.message,
-        });
-        return;
+      (safeUserInfo)=>{
+        //when EVEYTHIGN finally resolves
+
+        //send the access token in the body
+
+        const {safeUser,jti} = safeUserInfo
+
+     
+
+            // res.cookie the refresh token
+            res.cookie("refreshToken", rToken, {
+              httpOnly: true,
+              path: "/api/refresh",
+              maxAge: 7 * 24 * 60 * 60 * 1000,
+              secure: process.env.NODE_ENV === "production",
+              sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            });
+
+           //res.json the response with the safe user data and JWT access tokens
+            res.status(201).json({
+              success:true,
+              message: "User created successfully.",
+              payload: { user: safeUser, accessToken: aToken },
+              error: null,
+            });
       }
+    )
 
-      res
-        .status(400)
-        .json({
-          success: false,
-          message: "Unable to create user, check your input and try again.",
-          payload: null,
-          error: error.message,
-        });
-        
   }
-}
+
+
+  
+//Function to create a new user in Mongo, returning the safe user data (without password) and JWT tokens
+// async function createUser(req, res) {
+//   try {
+
+    
+     
+   
+
+
+   
+   
+
+   
+
+
+
+
+
+    
+
+//     //res.cookie the refresh token
+//     // res.cookie("refreshToken", refreshToken, {
+//     //   httpOnly: true,
+//     //   path: "/api/refresh",
+//     //   maxAge: 7 * 24 * 60 * 60 * 1000,
+//     //   secure: process.env.NODE_ENV === "production",
+//     //   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+//     // });
+
+//     //res.json the response with the safe user data and JWT access tokens
+//     // res.status(201).json({
+//     //   success:true,
+//     //   message: "User created successfully.",
+//     //   payload: { user: safeUser, accessToken: accessToken },
+//     //   error: null,
+//     // });
+
+//     res.json("test")
+//   } catch (error) {
+
+//     console.log(error.message)
+//     if (error.message === "That username already exists."){
+//       res.status(409).json({
+//         success: false,
+//         message: "Username already in use",
+//         payload: null,
+//         error: error.message,
+//       });
+//       return
+//     }
+
+//       if(error.message==="That email is already in use."){
+//         res.status(409).json({
+//           success: false,
+//           message: "Email already in use",
+//           payload: null,
+//           error: error.message,
+//         });
+//         return;
+//       }
+
+//       res
+//         .status(400)
+//         .json({
+//           success: false,
+//           message: "Unable to create user, check your input and try again.",
+//           payload: null,
+//           error: error.message,
+//         });
+        
+//   }
+// }
 
 
 
