@@ -1,35 +1,75 @@
 import UserModel from "../models/usersModel.js";
+import RefreshTokenModel from "../models/refreshTokensModel.js";
 
 import { createRefreshToken,createAccessToken} from "../util/token.js";
+import { randomUUID } from "crypto";
 
 //Function to create a new user in Mongo, returning the safe user data (without password) and JWT tokens
 async function createUser(req, res) {
   try {
 
     //try to create the user in the database
-    const response = await UserModel.create(req.body);
-    const { password, ...safeUser } = response.toObject();
+    // const response = await UserModel.create(req.body);
 
-    //If its successful create a response with the safe user data and JWT tokens
-    const refreshToken = createRefreshToken({ safeUser });
-    const accessToken = createAccessToken({ safeUser });
+      let safeUser;
+
+     const responseTest = UserModel.create(req.body).then( (response)=>{
+
+     
+      const { password, ...safeCredentials } = response.toObject();
+      safeUser=safeCredentials;
+       console.log(safeCredentials);
+       const now = new Date();
+       const thirtyDaysLater = new Date(
+         now.getTime() + 30 * 24 * 60 * 60 * 1000,
+       );
+        const response2 =  RefreshTokenModel.create({
+       jti: jti,
+       userId: safeCredentials._id,
+       expires: thirtyDaysLater})
+     })
+    // const { password, ...safeUser } = response.toObject();
+
+    //If its successful generate a random uuid and store it as a claim in the refresh token
+    const jti = randomUUID();
+
+    // const refreshToken = createRefreshToken({ safeUser,jti: jti });
+
+    //Set the expiry for 30 days 
+    // const now = new Date();
+    // const thirtyDaysLater = new Date(now.getTime() + 30*24*30 * 60 * 1000);
+
+   
+    // //Store the jti in mongoDB
+    //  const response2 = await RefreshTokenModel.create({
+    //    jti: jti,
+    //    userId: safeUser.userId,
+    //    expires: thirtyDaysLater,
+    //  });
+
+
+
+    //genrate an access token 
+    // const accessToken = createAccessToken({ safeUser });
 
     //res.cookie the refresh token
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      path: "/api/refresh",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    });
+    // res.cookie("refreshToken", refreshToken, {
+    //   httpOnly: true,
+    //   path: "/api/refresh",
+    //   maxAge: 7 * 24 * 60 * 60 * 1000,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    // });
 
     //res.json the response with the safe user data and JWT access tokens
-    res.status(201).json({
-      success:true,
-      message: "User created successfully.",
-      payload: { user: safeUser, accessToken: accessToken },
-      error: null,
-    });
+    // res.status(201).json({
+    //   success:true,
+    //   message: "User created successfully.",
+    //   payload: { user: safeUser, accessToken: accessToken },
+    //   error: null,
+    // });
+
+    res.json("test")
   } catch (error) {
 
     console.log(error.message)

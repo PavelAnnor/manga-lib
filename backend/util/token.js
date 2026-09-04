@@ -4,8 +4,7 @@ import jwt from "jsonwebtoken"
 //Function to generate an access token
 function createAccessToken(payload) {
 
-   
-    const token = jwt.sign(payload,process.env.ACCESS_TOKEN_SECRET,{expiresIn: "15m"});
+    const token = jwt.sign(payload,process.env.ACCESS_TOKEN_SECRET,{expiresIn: "30m"});
     return token
     
 }
@@ -13,7 +12,9 @@ function createAccessToken(payload) {
 
 //Function to generate a refresh token
 function createRefreshToken(payload) {
-  const token = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET);
+  const token = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: "30d",
+  });
   return token;
 }
 
