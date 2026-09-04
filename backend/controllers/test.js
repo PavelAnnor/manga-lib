@@ -117,7 +117,7 @@ async function loginUser(req,res){
         );
       }
 
-      //when that resolves, extract all the informafion except the password and return it
+      // extract all the informafion except the password and return it
       const { password, ...safeUser } = response.toObject();
       return safeUser;
     }
@@ -129,6 +129,7 @@ async function loginUser(req,res){
         now.getTime() + 30 * 24 * 60 * 60 * 1000,
       );
 
+      //make the document representing the the refresh token
       await RefreshTokenModel.create({
         userId: userData._id,
         jti: jti,
@@ -140,7 +141,10 @@ async function loginUser(req,res){
     const safeUser = await makeUser();
     const refreshResponse = await makeRefresh(safeUser);
 
+    //create access token
     const accessToken = createAccessToken({ safeUser });
+
+    //create refresh token with jti as a claim
     const refreshToken = createRefreshToken({ safeUser, jti: jti });
 
     // res.cookie the refresh token

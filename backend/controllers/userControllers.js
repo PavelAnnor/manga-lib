@@ -1,7 +1,7 @@
 import UserModel from "../models/usersModel.js";
 import RefreshTokenModel from "../models/refreshTokensModel.js";
-
-import { createRefreshToken,createAccessToken} from "../util/token.js";
+import {HTTPError} from "../util/error.js";
+import { createRefreshToken,createAccessToken,decodeRefreshToken, verifyRefreshToken} from "../util/token.js";
 import { randomUUID } from "crypto";
 
 
@@ -205,25 +205,29 @@ async function createUser(req, res) {
 
 
     try {
+
       //create the random jti
       const jti = randomUUID();
 
       async function makeUser() {
+
         //perform the creation of the user document first
         const response = await UserModel.create(req.body);
 
-        //when that resolves, extract all the informafion except the password
+        // extract all the informafion except the password  and return that
         const { password, ...safeUser } = response.toObject();
         return safeUser;
       }
 
       async function makeRefresh(userData) {
+
         //Set the expiry for the document for 30 days
         const now = new Date();
         const thirtyDaysLater = new Date(
           now.getTime() + 30 * 24 * 60 * 60 * 1000,
         );
 
+        //make the document representing the the refresh token 
         await RefreshTokenModel.create({
           userId: userData._id,
           jti: jti,
@@ -231,16 +235,20 @@ async function createUser(req, res) {
         });
       }
 
+      //make the documents 
       const safeUser = await makeUser();
       const refreshResponse = await makeRefresh(safeUser);
 
+      //create access token 
       const accessToken = createAccessToken({ safeUser });
+
+      //create refresh token with jti as a claim
       const refreshToken = createRefreshToken({ safeUser, jti: jti });
 
       // res.cookie the refresh token
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        path: "/api/refresh",
+        path: "/api",
         maxAge: 7 * 24 * 60 * 60 * 1000,
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
@@ -291,74 +299,122 @@ async function createUser(req, res) {
 
 
 
-async function loginUser(req, res) {
-try{
-  //Authentication Process with provicded credentials
-  const q = req.body;
-  const response = await UserModel.findOne({
-    password: req.body.password,
-    $or: [{ email: req.body.username }, { username: req.body.username }],
-  });
+async function loginUser(req,res){
 
-  //If user isnt found
-  if (!response) {
-    //if find is unsuccessful, send a custom error message
-    res.status(401).json({
-      success:false,
-      message: "Log in Fail Check Credentials",
-      payload: null,
-      error: "Login credentials are incorrect",
+
+
+  try {
+    //create the random jti
+    const jti = randomUUID();
+
+    async function authenticateUser() {
+      //Authentication Process with provicded credentials
+      const q = req.body;
+      const response = await UserModel.findOne({
+        password: req.body.password,
+        $or: [{ email: req.body.username }, { username: req.body.username }],
+      });
+
+      //if I get no response throw and error
+      if (!response) {
+        throw new HTTPError(
+          401,
+          "Login credentials are incorrect No User found",
+          "No User Found Check Credentials and Try Again",
+        );
+      }
+
+      // extract all the informafion except the password and return it
+      const { password, ...safeUser } = response.toObject();
+      return safeUser;
+    }
+
+    async function makeRefresh(userData) {
+      //Set the expiry for the document for 30 days
+      const now = new Date();
+      const thirtyDaysLater = new Date(
+        now.getTime() + 30 * 24 * 60 * 60 * 1000,
+      );
+
+      //make the document representing the the refresh token
+      await RefreshTokenModel.create({
+        userId: userData._id,
+        jti: jti,
+        expires: thirtyDaysLater,
+      });
+    }
+
+    //await the db calls
+    const safeUser = await authenticateUser();
+    const refreshResponse = await makeRefresh(safeUser);
+
+    //create access token
+    const accessToken = createAccessToken({ safeUser });
+
+    //create refresh token with jti as a claim
+    const refreshToken = createRefreshToken({ safeUser, jti: jti });
+
+    // res.cookie the refresh token
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      path: "/api",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
-    return;
+
+    //res.json the response with the safe user data and JWT access tokens
+    res.status(201).json({
+      success: true,
+      message: "Log in successful",
+      payload: { user: safeUser, accessToken: accessToken },
+      error: null,
+    });
+  } catch (error) {
+
+    //if its a custom error message I threw
+    if (error.customFrontEndMessage){
+       res.status(error.statusCode).json({
+         success: false,
+         message: error.customFrontEndMessage,
+         payload: null,
+         error: error.message,
+       });
+       return
+
+    }
+
+      res.status(401).json({
+        success: false,
+        message: "Log in Fail Check Credentials",
+        payload: null,
+        error: error.message,
+      });
+      return
+    
   }
-
-  //extract claims I want to send back to front end
-  const { password, ...safeUser } = response.toObject();
-
-  //create jwt  access and refresh tokens
-  const refreshToken = createAccessToken({ safeUser }) ;
-  const accessToken = createRefreshToken({ safeUser });
-
-  //res.cookie the refresh token
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    path: "/api/refresh",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  });
-
-  //res.json the access token
-  res
-    .status(200)
-    .json({
-      success:true,
-      message: "Successful Login!",
-      payload: { accessToken: accessToken, user:safeUser },
-      error:null
-    });
-
-  return;
+  
 }
 
-catch (error){
-
-
-  res.status(500).json({success:false, message: "Failed to log in user.", payload: null, error: error.message });
-
-
-}
-
-}
 
 
 
 async function logoutUser(req, res) {
   try {
-    //Clear the refresh token cookie
+    //Find the refreshToken cookie
+    const refreshToken = req.cookies.refreshToken;
+  
+    //verify and decode it (it'll throw custom errors to be caught later if token is invalid)
+    const {jti, safeUser }= verifyRefreshToken(refreshToken)
+    console.log(jti)
+
+    //delete the refresh token from the db using the jti claim
+    const response = await RefreshTokenModel.deleteOne({ jti: jti });
+
+    //Clear the refresh token cookie on the clinet
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      path: "/api/refresh"
+      path: "/api/refresh",
     });
 
     //Send a success response
@@ -366,7 +422,7 @@ async function logoutUser(req, res) {
       success: true,
       message: "Successfully logged out.",
       payload: null,
-      error: null
+      error: null,
     });
   } catch (error) {
     res.status(500).json({

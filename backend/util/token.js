@@ -18,8 +18,8 @@ function createRefreshToken(payload) {
   return token;
 }
 
-//Function to authenticate a JWT token
-function authenticateToken(token){
+//Function to authenticate a JWT access token
+function verifyAccessToken(token){
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
         if (err) {
@@ -31,5 +31,58 @@ function authenticateToken(token){
 }
 
 
+//Function to authenticate a JWT token
+function verifyRefreshToken(token){
 
-export {createAccessToken, createRefreshToken, authenticateToken}
+  try {
+   return jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+    // decoded payload
+  } catch (err) {
+    // err.name will be one of:
+
+   switch (err.name) {
+
+    //token expired
+     case "TokenExpiredError":
+       break;
+
+       //malformed, bad signiture, etc
+     case "JsonWebTokenError":
+       break;
+
+       //token used before is nbf claim
+     case "NotBeforeError":
+       break;
+
+     default:
+       break;
+   }
+   
+  }
+    
+}
+
+
+function decodeRefreshToken(token){
+
+}
+
+
+function decodeAccessToken(token){
+
+    const payload = jwt.decode(token)
+    return payload
+}
+
+
+
+
+
+export {
+  createAccessToken,
+  createRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+  decodeRefreshToken,
+  decodeAccessToken
+};
