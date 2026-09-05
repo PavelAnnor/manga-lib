@@ -350,9 +350,13 @@ async function loginUser(req,res){
 
     //create access token
     const accessToken = createAccessToken({ safeUser });
-
+    console.log("A token from log in")
+    console.log(accessToken)
     //create refresh token with jti as a claim
     const refreshToken = createRefreshToken({ safeUser, jti: jti });
+    console.log("R token from log in");
+    console.log(refreshToken);
+
 
     // res.cookie the refresh token
     res.cookie("refreshToken", refreshToken, {

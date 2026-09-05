@@ -12,8 +12,12 @@ const backendAPI = axios.create({
 async function testBackendAPI() {
 
     try{
-        const response =  await backendAPI.get("/refresh");
-        console.log(response.data)
+      console.log("dawg")
+        const response = await backendAPI.get("/refresh/refresh-cycle");
+         console.log(response);
+        return response.data
+       
+       
     }
 
     catch (error) {
@@ -110,4 +114,4 @@ async function logoutUser(){
 
 
 
-export {testBackendAPI,loginUser,createUser,logoutUser};
+export {loginUser,createUser,logoutUser,testBackendAPI};
