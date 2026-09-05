@@ -307,16 +307,10 @@ async function loginUser(req,res){
 
 
    
-    // get the old jti
-    const oldRefresh = req.cookies.refreshToken
-    const {jti} = verifyRefreshToken(oldRefresh)
-
-    console.log(jti)
+   
 
 
-
-    //delete it from DB
-    await RefreshTokenModel.findOneAndDelete({ jti: jti });
+   
     //create the random jti
     const Newjti = randomUUID();
 
@@ -431,7 +425,7 @@ async function logoutUser(req, res) {
     //Clear the refresh token cookie on the clinet
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      path: "/api/refresh",
+      path: "/api",
     });
 
     //Send a success response
