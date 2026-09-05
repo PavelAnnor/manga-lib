@@ -20,7 +20,6 @@ export default function UserContextProvider(props){
         const response = await testBackendAPI();
         console.log(response)
         setUser(response.payload.user)
-       
         setAccessToken(response.payload.accessToken)
       }
       catch(err){

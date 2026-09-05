@@ -1,7 +1,7 @@
 import UserModel from "../models/usersModel.js";
 import RefreshTokenModel from "../models/refreshTokensModel.js";
 import {HTTPError} from "../util/error.js";
-import { createRefreshToken,createAccessToken,decodeRefreshToken, verifyRefreshToken} from "../util/token.js";
+import { createRefreshToken,createAccessToken, verifyRefreshToken} from "../util/token.js";
 import { randomUUID } from "crypto";
 
 
@@ -304,8 +304,21 @@ async function loginUser(req,res){
 
 
   try {
+
+
+   
+    // get the old jti
+    const oldRefresh = req.cookies.refreshToken
+    const {jti} = verifyRefreshToken(oldRefresh)
+
+    console.log(jti)
+
+
+
+    //delete it from DB
+    await RefreshTokenModel.findOneAndDelete({ jti: jti });
     //create the random jti
-    const jti = randomUUID();
+    const Newjti = randomUUID();
 
     async function authenticateUser() {
       //Authentication Process with provicded credentials
@@ -339,7 +352,7 @@ async function loginUser(req,res){
       //make the document representing the the refresh token
       await RefreshTokenModel.create({
         userId: userData._id,
-        jti: jti,
+        jti: Newjti,
         expires: thirtyDaysLater,
       });
     }
@@ -353,7 +366,7 @@ async function loginUser(req,res){
     console.log("A token from log in")
     console.log(accessToken)
     //create refresh token with jti as a claim
-    const refreshToken = createRefreshToken({ safeUser, jti: jti });
+    const refreshToken = createRefreshToken({ safeUser, jti: Newjti });
     console.log("R token from log in");
     console.log(refreshToken);
 
