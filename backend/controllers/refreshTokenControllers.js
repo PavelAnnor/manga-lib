@@ -1,4 +1,5 @@
 import RefreshTokenModel from "../models/refreshTokensModel.js";
+import mongoose from "mongoose";
 import {
   verifyRefreshToken,
   createAccessToken,
@@ -8,8 +9,6 @@ import {HTTPError} from "../util/error.js";
 import { randomUUID } from "crypto";
 
 async function refreshCycle(req, res) {
-  
-  
   
   
   try {
@@ -25,21 +24,31 @@ async function refreshCycle(req, res) {
 
     //verify it, make sure its not expired
     const payload = verifyRefreshToken(refreshToken);
-    console.log("payload")
-    console.log(payload)
 
-    //extract the old jti 
+   //extract the old jti 
     const oldJTI = payload.jti
+    console.log(oldJTI)
     
 
     //also check in th db if its even there 
-    const r = await RefreshTokenModel.findOne({jti:oldJTI})
+    const r = await RefreshTokenModel.find({jti:oldJTI})
+    console.log("pending")
+    console.log(r)
+
+    
+
+    const { iat, exp, jti, ...safeUser } = payload;
 
     //if its not 
     if (!r) {
       // Token was valid JWT but not found in DB — either already rotated
       // and reused, or fully bogus. Nuke all sessions for this user.
-      await RefreshTokenModel.deleteMany({ userId: safeUser._id });
+      console.log(safeUser)
+      
+
+      await RefreshTokenModel.deleteMany({
+        userId: new mongoose.Types.ObjectId(safeUser._id),
+      });
 
       return res.status(401).json({
         success: false,
@@ -48,33 +57,19 @@ async function refreshCycle(req, res) {
         error: "Refresh token reuse detected",
       });
     }
-     
-    
 
    
-    //generare access token with safe user info
-    const { iat,exp,jti,...safeUser } = payload;
-    console.log(safeUser)
-
     
+    //generare access token with safe user info    
     const accessToken = createAccessToken(safeUser);
-    console.log("new access")
-    console.log(accessToken)
-
-    
    
-
     //create the random jti
     const newJTI = randomUUID();
   
 
     //generate a new refresh token with safe user and new JTI
     const newRefreshToken = createRefreshToken({...safeUser, jti:newJTI});
-    console.log("refresh")
-    console.log(newRefreshToken)
-
-  
-
+    
     //create new expiry
     //Set the expiry for the document for 30 days
     const now = new Date();
@@ -82,7 +77,7 @@ async function refreshCycle(req, res) {
 
     //update the ttl of the refresh token in the db and the jti
     const response = await RefreshTokenModel.findOneAndUpdate(
-      { jti: oldJTI },
+      { userId: new mongoose.Types.ObjectId(safeUser._id) },
       { $set: { jti: newJTI, expires: thirtyDaysLater } },
     );
 
