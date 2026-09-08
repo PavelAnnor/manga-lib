@@ -18,8 +18,8 @@ export default function Register() {
 
     // State to track the validity of each input field
     const [valid, setValid] = useState({
-      fName: false,
-      lName: false,
+      firstName: false,
+      lastName: false,
       username: false,
       email: false,
       password: false,

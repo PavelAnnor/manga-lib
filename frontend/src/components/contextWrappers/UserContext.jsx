@@ -1,5 +1,5 @@
 import {useState, useEffect, createContext} from "react";
-import { testBackendAPI } from "../../util/backendAPI.js";
+import { refreshCycle } from "../../util/backendAPI.js";
 
 
 export const UserContext = createContext(null);
@@ -16,8 +16,8 @@ export default function UserContextProvider(props){
 
     async function fetchUserData() {
       try {
-        console.log("Rnning")
-        const response = await testBackendAPI();
+      
+        const response = await refreshCycle();
         console.log(response)
         setUser(response.payload.user)
         setAccessToken(response.payload.accessToken)

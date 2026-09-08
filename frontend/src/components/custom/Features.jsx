@@ -36,7 +36,7 @@ export default function Features() {
         </h2>
 
         <section className="grid grid-cols-4 gap-4">
-            {features.map( f=> <FeaturesCard imgSrc={f.imgSrc} label={f.label} desc= {f.desc}></FeaturesCard>)}
+            {features.map( f=> <FeaturesCard imgSrc={f.imgSrc} label={f.label} desc= {f.desc} key={f.imgSrc}></FeaturesCard>)}
         </section>
       </main>
     );

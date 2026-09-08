@@ -1,5 +1,6 @@
 import "dotenv/config"
 import jwt from "jsonwebtoken"
+import { HTTPError } from "./error.js";
 
 //Function to generate an access token
 function createAccessToken(payload) {
@@ -21,13 +22,43 @@ function createRefreshToken(payload) {
 //Function to authenticate a JWT access token
 function verifyAccessToken(token){
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-        if (err) {
-            throw new Error("Invalid token")
-        }
-        return decoded
-    })
+  try {
+    return jwt.verify(token,process.env.ACCESS_TOKEN_SECRET)
+    
+  } catch (error) {
 
+    switch (err.name) {
+      //token expired
+      case "TokenExpiredError":
+        throw new HTTPError(401,err.name,"Token is expired. Please log in again")
+        break;
+
+      //malformed, bad signiture, etc
+      case "JsonWebTokenError":
+         throw new HTTPError(
+           401,
+           err.name,
+           "Token is malfored or invalid. Please log in again",
+         );
+        break;
+
+      //token used before is nbf claim
+      case "NotBeforeError":
+         throw new HTTPError(
+           401,
+           err.name,
+           "Token cannot be used on this date. Please Log in again",
+         );
+        break;
+
+      default:
+        throw new HTTPError(500, err.name, "Unable to verify token.");
+        break;
+    }
+    
+  }
+
+   
 }
 
 
@@ -40,23 +71,34 @@ function verifyRefreshToken(token){
   } catch (err) {
     // err.name will be one of:
 
-   switch (err.name) {
+    switch (err.name) {
+      //token expired
+      case "TokenExpiredError":
+        throw new HTTPError(401, err.name, "Token is expired. Please log in again");
+        break;
 
-    //token expired
-     case "TokenExpiredError":
-       break;
+      //malformed, bad signiture, etc
+      case "JsonWebTokenError":
+        throw new HTTPError(
+          401,
+          err.name,
+          "Token is malfored or invalid. Please log in again",
+        );
+        break;
 
-       //malformed, bad signiture, etc
-     case "JsonWebTokenError":
-       break;
+      //token used before is nbf claim
+      case "NotBeforeError":
+        throw new HTTPError(
+          401,
+          err.name,
+          "Token cannot be used on this date. Please Log in again",
+        );
+        break;
 
-       //token used before is nbf claim
-     case "NotBeforeError":
-       break;
-
-     default:
-       break;
-   }
+      default:
+        throw new HTTPError(500, err.name, "Unable to verify token.");
+        break;
+    }
    
   }
     

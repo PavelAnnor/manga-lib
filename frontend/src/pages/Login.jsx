@@ -9,7 +9,7 @@ import {UserContext} from "../components/contextWrappers/UserContext.jsx";
 import {Button }from "../components/ui/Button.jsx";
 
 
-import { loginUser,testBackendAPI } from "../util/backendAPI.js";
+import { loginUser } from "../util/backendAPI.js";
 
 export default function Login() { 
   const navi = useNavigate()

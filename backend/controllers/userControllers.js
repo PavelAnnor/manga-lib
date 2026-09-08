@@ -5,229 +5,28 @@ import { createRefreshToken,createAccessToken, verifyRefreshToken} from "../util
 import { randomUUID } from "crypto";
 
 
-
-// function createUser  (req, res){
-
-//  //create vars for access and refresh tokens to be sent back to front end
-//   let aToken;
-//   let rToken;
-
-//   //Create random UUID to be stored as a jti claim
-//   const jti = randomUUID();
-
-//   //Create a userDocument in the DB
-//   const response = UserModel.create(req.body).then((response) => {
-//     //when that resolves, extract all the informafion except the password
-//     const { password, ...safeUser } = response.toObject();
-
-//     //genrate an access token
-//     const accessToken = createAccessToken({ safeUser });
-//     aToken=accessToken
-//     console.log("Access token")
-//      console.log(accessToken);
-
-//     //generate a refreshToken
-//     const refreshToken = createRefreshToken({ safeUser, jti: jti });
-//     rToken=refreshToken
-//      console.log("Refresh token");
-//       console.log(refreshToken);
-
-//       //add a jti property 
-//       safeUser.jti = jti
-    
-
-   
-
-
-//     return safeUser
-
-   
-//   }).then(
-
-//     (safeUser) => {
-//       //When the intial call to user collection is done and susccessful 
-//       //Make a call to the db to create the refresh token
-
-//       //Set the expiry for 30 days
-//       const now = new Date();
-//       const thirtyDaysLater = new Date(
-//         now.getTime() + 30 * 24 * 60 * 60 * 1000,
-//       );
-      
-//       const response = RefreshTokenModel.create({
-//         jti: safeUser.jti,
-//         userId: safeUser._id,
-//         expires: thirtyDaysLater,
-//       })
-
-
-//       return safeUser
-//     }
-    
-//     ).then(
-
-//       (safeUserInfo)=>{
-//         //when EVEYTHIGN finally resolves
-
-//         //send the access token in the body
-
-//         const {safeUser,jti} = safeUserInfo
-
-     
-
-//             // res.cookie the refresh token
-//             res.cookie("refreshToken", rToken, {
-//               httpOnly: true,
-//               path: "/api/refresh",
-//               maxAge: 7 * 24 * 60 * 60 * 1000,
-//               secure: process.env.NODE_ENV === "production",
-//               sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-//             });
-
-//            //res.json the response with the safe user data and JWT access tokens
-//             res.status(201).json({
-//               success:true,
-//               message: "User created successfully.",
-//               payload: { user: safeUser, accessToken: aToken },
-//               error: null,
-//             });
-//       }
-//     ).catch( (error) => {
-//     console.log(error.message)
-//     if (error.message === "That username already exists."){
-//       res.status(409).json({
-//         success: false,
-//         message: "Username already in use",
-//         payload: null,
-//         error: error.message,
-//       });
-//       return
-//     }
-
-//       if(error.message==="That email is already in use."){
-//         res.status(409).json({
-//           success: false,
-//           message: "Email already in use",
-//           payload: null,
-//           error: error.message,
-//         });
-//         return;
-//       }
-
-//       res
-//         .status(400)
-//         .json({
-//           success: false,
-//           message: "Unable to create user, check your input and try again.",
-//           payload: null,
-//           error: error.message,
-//         }); 
-
-//   }
-// )}
-
-
-
-//Function to create a new user in Mongo, returning the safe user data (without password) and JWT tokens
-// async function createUser(req, res) {
-//   try {
-
-    
-     
-   
-
-
-   
-   
-
-   
-
-
-
-
-
-    
-
-//     //res.cookie the refresh token
-//     // res.cookie("refreshToken", refreshToken, {
-//     //   httpOnly: true,
-//     //   path: "/api/refresh",
-//     //   maxAge: 7 * 24 * 60 * 60 * 1000,
-//     //   secure: process.env.NODE_ENV === "production",
-//     //   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-//     // });
-
-//     //res.json the response with the safe user data and JWT access tokens
-//     // res.status(201).json({
-//     //   success:true,
-//     //   message: "User created successfully.",
-//     //   payload: { user: safeUser, accessToken: accessToken },
-//     //   error: null,
-//     // });
-
-//     res.json("test")
-//   } catch (error) {
-
-//     console.log(error.message)
-//     if (error.message === "That username already exists."){
-//       res.status(409).json({
-//         success: false,
-//         message: "Username already in use",
-//         payload: null,
-//         error: error.message,
-//       });
-//       return
-//     }
-
-//       if(error.message==="That email is already in use."){
-//         res.status(409).json({
-//           success: false,
-//           message: "Email already in use",
-//           payload: null,
-//           error: error.message,
-//         });
-//         return;
-//       }
-
-//       res
-//         .status(400)
-//         .json({
-//           success: false,
-//           message: "Unable to create user, check your input and try again.",
-//           payload: null,
-//           error: error.message,
-//         });
-        
-//   }
-// }
-
 async function createUser(req, res) {
 
+    let createdUser = null;
 
     try {
 
       //create the random jti
       const jti = randomUUID();
 
+      //Function to create a user document in MONGO and return safeuser data (data minus password)
       async function makeUser() {
-
-        //perform the creation of the user document first
         const response = await UserModel.create(req.body);
-
-        // extract all the informafion except the password  and return that
         const { password, ...safeUser } = response.toObject();
         return safeUser;
       }
 
+      //Function to create a "refreshToken" document in mongo with an expiry of 30 days
       async function makeRefresh(userData) {
-
-        //Set the expiry for the document for 30 days
         const now = new Date();
         const thirtyDaysLater = new Date(
           now.getTime() + 30 * 24 * 60 * 60 * 1000,
         );
-
-        //make the document representing the the refresh token 
         await RefreshTokenModel.create({
           userId: userData._id,
           jti: jti,
@@ -235,21 +34,22 @@ async function createUser(req, res) {
         });
       }
 
-      //make the documents 
+      //make the documents
       const safeUser = await makeUser();
+      createdUser = safeUser;
       const refreshResponse = await makeRefresh(safeUser);
 
-      //create access token 
-      const accessToken = createAccessToken({ safeUser });
+      //create access token
+      const accessToken = createAccessToken( safeUser);
 
-      //create refresh token with jti as a claim
-      const refreshToken = createRefreshToken({ safeUser, jti: jti });
+      //create refresh token with jti as an added claim
+      const refreshToken = createRefreshToken({ ...safeUser, jti: jti });
 
-      // res.cookie the refresh token
+      //res.cookie the refresh token
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         path: "/api",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 30 * 24 * 60 * 60 * 1000,
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       });
@@ -262,36 +62,42 @@ async function createUser(req, res) {
         error: null,
       });
     } catch (error) {
+      // Only roll back if a user was actually created this request
+      if (createdUser) {
+        await UserModel.deleteOne({ _id: createdUser._id });
+      }
+      console.log(error.message);
 
-         console.log(error.message);
-         if (error.message === "That username already exists.") {
-           res.status(409).json({
-             success: false,
-             message: "Username already in use",
-             payload: null,
-             error: error.message,
-           });
-           return;
-         }
+      //Conclifct errors pt1
+      if (error.message === "That username already exists.") {
+        res.status(409).json({
+          success: false,
+          message: "Username already in use",
+          payload: null,
+          error: "Username must be unqiue",
+        });
+        return;
+      }
 
-         if (error.message === "That email is already in use.") {
-           res.status(409).json({
-             success: false,
-             message: "Email already in use",
-             payload: null,
-             error: error.message,
-           });
-           return;
-         }
+      //Conclifct errors pt2
+      if (error.message === "That email is already in use.") {
+        res.status(409).json({
+          success: false,
+          message: "Email already in use",
+          payload: null,
+          error:
+            "Email is already in use. Log in with email or use another one.",
+        });
+        return;
+      }
 
-         res.status(400).json({
-           success: false,
-           message: "Unable to create user, check your input and try again.",
-           payload: null,
-           error: error.message,
-         }); 
-
-        
+      //anythih else
+      res.status(400).json({
+        success: false,
+        message: "Unable to Create User Check Inputs and Try Again",
+        payload: null,
+        error: "Unable to create user in database",
+      });
     }
  
 }
@@ -305,30 +111,24 @@ async function loginUser(req,res){
 
   try {
 
-
-   
-   
-
-
-   
-    //create the random jti
+    //create the new random jti
     const Newjti = randomUUID();
 
+    //Function to authenicate user with DB Look up
     async function authenticateUser() {
-      //Authentication Process with provicded credentials
-      const q = req.body;
       const response = await UserModel.findOne({
         password: req.body.password,
         $or: [{ email: req.body.username }, { username: req.body.username }],
       });
 
-      //if I get no response throw and error
+      //if I get no user found throw an error
       if (!response) {
         throw new HTTPError(
           401,
-          "Login credentials are incorrect No User found",
+          "Login Credentials are Incorrect",
           "No User Found Check Credentials and Try Again",
         );
+       
       }
 
       // extract all the informafion except the password and return it
@@ -356,20 +156,17 @@ async function loginUser(req,res){
     const refreshResponse = await makeRefresh(safeUser);
 
     //create access token
-    const accessToken = createAccessToken({ safeUser });
-    console.log("A token from log in")
-    console.log(accessToken)
-    //create refresh token with jti as a claim
-    const refreshToken = createRefreshToken({ safeUser, jti: Newjti });
-    console.log("R token from log in");
-    console.log(refreshToken);
+    const accessToken = createAccessToken( safeUser );
+  
 
-
+    //create refresh token with new jti as a claim
+    const refreshToken = createRefreshToken( {...safeUser, jti:Newjti});
+   
     // res.cookie the refresh token
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       path: "/api",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
@@ -382,24 +179,26 @@ async function loginUser(req,res){
       error: null,
     });
   } catch (error) {
+    console.log(error)
 
-    //if its a custom error message I threw
+    //if its a custom error  I threw
     if (error.customFrontEndMessage){
        res.status(error.statusCode).json({
          success: false,
          message: error.customFrontEndMessage,
          payload: null,
-         error: error.message,
+         error: "Problem loging in ",
        });
        return
 
     }
 
-      res.status(401).json({
+    //anythign else
+      res.status(500).json({
         success: false,
-        message: "Log in Fail Check Credentials",
+        message: "Something Went Wrong Please Try Again",
         payload: null,
-        error: error.message,
+        error: "Internal server error",
       });
       return
     
@@ -412,23 +211,41 @@ async function loginUser(req,res){
 
 async function logoutUser(req, res) {
   try {
-    //Find the refreshToken cookie
+
     const refreshToken = req.cookies.refreshToken;
-  
-    //verify and decode it (it'll throw custom errors to be caught later if token is invalid)
-    const {jti, safeUser }= verifyRefreshToken(refreshToken)
-    console.log(jti)
 
-    //delete the refresh token from the db using the jti claim
-    const response = await RefreshTokenModel.deleteOne({ jti: jti });
+    // No cookie at all — already logged out, nothing to do
+    if (!refreshToken) {
+      res.clearCookie("refreshToken", { httpOnly: true, path: "/api" });
+      return res.status(200).json({
+        success: true,
+        message: "Successfully logged out.",
+        payload: null,
+        error: null,
+      });
+    }
 
-    //Clear the refresh token cookie on the clinet
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      path: "/api",
-    });
 
-    //Send a success response
+    let jti;
+
+    //try to verify the refresh token
+    try {
+      ({ jti } = verifyRefreshToken(refreshToken));
+    } catch (err) {
+      // Invalid/expired token — still just clear the cookie and report success
+      res.clearCookie("refreshToken", { httpOnly: true, path: "/api" });
+      return res.status(200).json({
+        success: true,
+        message: "Successfully logged out.",
+        payload: null,
+        error: null,
+      });
+    }
+
+    await RefreshTokenModel.deleteOne({ jti });
+
+    res.clearCookie("refreshToken", { httpOnly: true, path: "/api" });
+
     res.status(200).json({
       success: true,
       message: "Successfully logged out.",
@@ -436,11 +253,13 @@ async function logoutUser(req, res) {
       error: null,
     });
   } catch (error) {
+    // Only genuine unexpected failures (e.g. DB connection down) land here
+    console.log(error);
     res.status(500).json({
       success: false,
       message: "Failed to log out user.",
       payload: null,
-      error: error.message
+      error: "Internal server error",
     });
   }
 }
