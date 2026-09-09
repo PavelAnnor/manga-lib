@@ -27,13 +27,12 @@ async function refreshCycle(req, res) {
 
    //extract the old jti 
     const oldJTI = payload.jti
-    console.log(oldJTI)
+    
     
 
     //also check in th db if its even there 
     const r = await RefreshTokenModel.find({jti:oldJTI})
-    console.log("pending")
-    console.log(r)
+   
 
     
 
