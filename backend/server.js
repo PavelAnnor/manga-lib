@@ -1,9 +1,10 @@
-//Module imports 
+//Module + middleware imports 
 import "dotenv/config"
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser";
 import {createAccessToken,createRefreshToken,verifyRefreshToken} from "./util/token.js"
+import { authenticateToken } from "./middleware/authenticateToken.js";
 
 
 import connectDB from "./conn.js"
@@ -15,6 +16,13 @@ const PORT =  process.env.PORT || 3000
 const allowedOrigins = [
   "http://localhost:5173"
 ];
+
+//Import routes
+import userRoutes from "./routes/userRoutes.js";
+import refreshRoutes from "./routes/refreshRoutes.js"
+import mangaDexAPIRoutes from "./routes/mangaDexAPIRoutes.js"
+
+
 
 
 //Use of middleware
@@ -31,9 +39,7 @@ APP.use(
 );
 
 
-//Import routes
-import userRoutes from "./routes/userRoutes.js";
-import refreshRoutes from "./routes/refreshRoutes.js"
+
 
 
 
@@ -49,6 +55,10 @@ APP.use((req, res, next) => {
 
 APP.use("/api/users", userRoutes);
 APP.use("/api/refresh",refreshRoutes)
+
+//Middle ware to check for and veirify access token beofre accessing certain resoruces 
+APP.use(authenticateToken)
+APP.use("/api/mangaDexAPI",mangaDexAPIRoutes)
 
 
 APP.get("/api/cookies",(req, res) => {
@@ -118,11 +128,11 @@ APP.get("/api/cleanse",(req, res) => {
 
 
 
-APP.use((err, req, res, next) => {
-  console.log('Error middleware triggered')
-  console.error(err.message)
-  res.status(500).json({ message: "Internal server error.", payload: null, error: err.message })
-})
+// APP.use((err, req, res, next) => {
+//   console.log('Error middleware triggered')
+//   console.error(err.message)
+//   res.status(500).json({ message: "Internal server error.", payload: null, error: err.message })
+// })
 
 
 

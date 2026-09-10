@@ -27,7 +27,7 @@ function verifyAccessToken(token){
     
   } catch (error) {
 
-    switch (err.name) {
+    switch (error.name) {
       //token expired
       case "TokenExpiredError":
         throw new HTTPError(401,err.name,"Token is expired. Please log in again")
@@ -37,7 +37,7 @@ function verifyAccessToken(token){
       case "JsonWebTokenError":
          throw new HTTPError(
            401,
-           err.name,
+           error.name,
            "Token is malfored or invalid. Please log in again",
          );
         break;
@@ -46,13 +46,13 @@ function verifyAccessToken(token){
       case "NotBeforeError":
          throw new HTTPError(
            401,
-           err.name,
+           error.name,
            "Token cannot be used on this date. Please Log in again",
          );
         break;
 
       default:
-        throw new HTTPError(500, err.name, "Unable to verify token.");
+        throw new HTTPError(500, error.name, "Unable to verify token.");
         break;
     }
     
@@ -68,20 +68,20 @@ function verifyRefreshToken(token){
   try {
    return jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
     // decoded payload
-  } catch (err) {
+  } catch (error) {
     // err.name will be one of:
 
-    switch (err.name) {
+    switch (error.name) {
       //token expired
       case "TokenExpiredError":
-        throw new HTTPError(401, err.name, "Token is expired. Please log in again");
+        throw new HTTPError(401, error.name, "Token is expired. Please log in again");
         break;
 
       //malformed, bad signiture, etc
       case "JsonWebTokenError":
         throw new HTTPError(
           401,
-          err.name,
+          error.name,
           "Token is malfored or invalid. Please log in again",
         );
         break;
@@ -90,13 +90,13 @@ function verifyRefreshToken(token){
       case "NotBeforeError":
         throw new HTTPError(
           401,
-          err.name,
+          error.name,
           "Token cannot be used on this date. Please Log in again",
         );
         break;
 
       default:
-        throw new HTTPError(500, err.name, "Unable to verify token.");
+        throw new HTTPError(500, error.name, "Unable to verify token.");
         break;
     }
    

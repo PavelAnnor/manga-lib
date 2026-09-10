@@ -32,7 +32,7 @@ async function refreshCycle() {
 async function loginUser(credentials){
 
   try {
-    const response = await backendAPI.post("users/login-user",credentials);
+    const response = await backendAPI.post("/users/login-user",credentials);
     return response.data
   } catch (error) {
 
@@ -62,7 +62,7 @@ async function createUser(credentials){
 
 
    try {
-     const response = await backendAPI.post("users/create-user", credentials);
+     const response = await backendAPI.post("/users/create-user", credentials);
      return response.data;
    } catch (error) {
      console.log(error.message);
@@ -88,7 +88,7 @@ async function logoutUser(){
 
    try {
     //attempt a logout post request with emoty body
-     const response = await backendAPI.post("users/logout-user", {});
+     const response = await backendAPI.post("/users/logout-user", {});
      return response.data;
    } catch (error) {
      console.log(error.message);
@@ -110,8 +110,36 @@ async function logoutUser(){
 }
 
 
+//function to send request to bakcend to query mangaDex api for manga
+async function searchManga(keyword){
+
+
+  try {
+    const response = await backendAPI.get(`/mangaDexAPI/search-manga/${keyword}`);
+     return response.data;
+    
+  } catch (error) {
+      console.log(error.message);
+
+
+       if (error.response) {
+         return error.response.data;
+       }
+
+       //If its here (or backend isnt running properly)
+       return {
+         success: false,
+         message: "Network Error",
+         payload: null,
+         error: error.message,
+       };
+    
+  }
+}
 
 
 
 
-export {loginUser,createUser,logoutUser,refreshCycle};
+
+
+export { loginUser, createUser, logoutUser, refreshCycle, searchManga };
