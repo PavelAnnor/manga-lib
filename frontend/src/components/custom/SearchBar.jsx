@@ -10,9 +10,10 @@ export default function SearchBar({ searchFunction, setSearchResults, setIsLoadi
     if(keyword==="")
       return
     console.log(keyword)
-    return
+    
 
-    const response = searchFunction(keyword)
+    const response = await searchFunction(keyword)
+    console.log(response)
 
 
 
@@ -25,7 +26,12 @@ export default function SearchBar({ searchFunction, setSearchResults, setIsLoadi
         <BookSearch className="h-full w-full text-[var(--primary-text)]"></BookSearch>
       </div>
 
-      <form className="w-[80%] h-full">
+      <form
+        className="w-[80%] h-full"
+        onSubmit={(e) => {
+          e.preventDefault()
+        }}
+      >
         <input
           className="w-full h-full p-1 focus:outline-none text-[var(--primary-text)]"
           placeholder="EX: Bleach"

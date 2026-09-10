@@ -9,8 +9,13 @@ function authenticateToken(req,res,next){
 
 
     try {
+    
       const authHeader = req.headers["authorization"];
       const token = authHeader && authHeader.split(" ")[1];
+      console.log("autheHeader")
+      console.log(token)
+
+      
 
 
 

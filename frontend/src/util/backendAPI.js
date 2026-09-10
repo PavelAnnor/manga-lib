@@ -1,9 +1,16 @@
 import axios from "axios";
 
+
+let accessToken;
+
+function setToken(token){
+  accessToken = token
+}
+
 const backendAPI = axios.create({
   baseURL: "http://localhost:3000/api",
   headers: {
-    "Content-Type": "application/json",
+    "Content-Type": "application/json"
   },
   withCredentials: true,
  
@@ -19,6 +26,7 @@ async function refreshCycle() {
       //if the error is from backend, log the error and return the response
       if (error.response) {
         return error.response.data;
+       
       }
 
       console.log(error);
@@ -115,7 +123,15 @@ async function searchManga(keyword){
 
 
   try {
-    const response = await backendAPI.get(`/mangaDexAPI/search-manga/${keyword}`);
+    
+    const response = await backendAPI.get(
+      `/mangaDexAPI/search-manga/${keyword}`,
+      {
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+        }
+      },
+    );
      return response.data;
     
   } catch (error) {
@@ -142,4 +158,4 @@ async function searchManga(keyword){
 
 
 
-export { loginUser, createUser, logoutUser, refreshCycle, searchManga };
+export { loginUser, createUser, logoutUser, refreshCycle, searchManga,setToken };
