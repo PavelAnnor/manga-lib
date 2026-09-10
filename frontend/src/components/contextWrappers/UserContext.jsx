@@ -21,7 +21,7 @@ export default function UserContextProvider(props){
         console.log(response)
         setUser(response.payload.user)
         setAccessToken(response.payload.accessToken)
-        setToken(response.payload.accessToken)
+        
       }
       catch(err){
 

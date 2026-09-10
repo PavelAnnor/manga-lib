@@ -35,6 +35,7 @@ APP.use(
     origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
+    exposedHeaders: ["WWW-Authenticate"], // 👈 this is the missing piece
   }),
 );
 

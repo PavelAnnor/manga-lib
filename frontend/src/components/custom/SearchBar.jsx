@@ -6,14 +6,27 @@ export default function SearchBar({ searchFunction, setSearchResults, setIsLoadi
   const searchBarRef = useRef(null)
   async function handleSubmit(e) {
     e.preventDefault()
+    setIsLoading(true)
+
+    //key the keyword types into the searchbar
     const keyword = searchBarRef.current.value
+
+    //if its nothign, dont make the search request 
     if(keyword==="")
       return
-    console.log(keyword)
     
-
+    
     const response = await searchFunction(keyword)
+    //if the query was uncessfull
+    if(!response.success){
+      console.log("Unsuccessful mangaDex Query ")
+       setIsLoading(false);
+      return;
+    }
+
     console.log(response)
+    setSearchResults(response.payload)
+     setIsLoading(false);
 
 
 

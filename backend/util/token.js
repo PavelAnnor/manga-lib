@@ -70,6 +70,8 @@ function verifyRefreshToken(token){
     // decoded payload
   } catch (error) {
     // err.name will be one of:
+    console.log("Error Verifying Access token")
+    console.log(error.name)
 
     switch (error.name) {
       //token expired
@@ -81,8 +83,8 @@ function verifyRefreshToken(token){
       case "JsonWebTokenError":
         throw new HTTPError(
           401,
-          error.name,
-          "Token is malfored or invalid. Please log in again",
+          "son",
+          "Token is malfored or invalid. Please log in againnnnn",
         );
         break;
 

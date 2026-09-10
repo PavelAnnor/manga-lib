@@ -7,20 +7,52 @@ function setToken(token){
   accessToken = token
 }
 
-const backendAPI = axios.create({
+const backendAPINoToken = axios.create({
   baseURL: "http://localhost:3000/api",
   headers: {
     "Content-Type": "application/json"
   },
   withCredentials: true,
- 
 
 });
+
+const backendAPIWithToken = axios.create({
+  baseURL: "http://localhost:3000/api",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  withCredentials: true,
+});
+
+backendAPIWithToken.interceptors.response.use(
+  (response)=>{
+
+
+
+
+ 
+  return response
+}
+,
+(error)=>{
+
+  if(error.response){
+  console.log(error.response)
+  console.log(error.response.data)
+  // console.log(error.response.data);
+  }
+
+
+
+})
 
 async function refreshCycle() {
 
     try {
-      const response = await backendAPI.get("/refresh/refresh-cycle");
+      const response = await backendAPINoToken.get("/refresh/refresh-cycle");
+      // setToken(response.data.payload.accessToken);
+      setToken("ahhaha");
+
       return response.data;
     } catch (error) {
       //if the error is from backend, log the error and return the response
@@ -40,7 +72,7 @@ async function refreshCycle() {
 async function loginUser(credentials){
 
   try {
-    const response = await backendAPI.post("/users/login-user",credentials);
+    const response = await backendAPINoToken.post("/users/login-user",credentials);
     return response.data
   } catch (error) {
 
@@ -70,7 +102,7 @@ async function createUser(credentials){
 
 
    try {
-     const response = await backendAPI.post("/users/create-user", credentials);
+     const response = await backendAPINoToken.post("/users/create-user", credentials);
      return response.data;
    } catch (error) {
      console.log(error.message);
@@ -96,7 +128,7 @@ async function logoutUser(){
 
    try {
     //attempt a logout post request with emoty body
-     const response = await backendAPI.post("/users/logout-user", {});
+     const response = await backendAPINoToken.post("/users/logout-user", {});
      return response.data;
    } catch (error) {
      console.log(error.message);
@@ -124,7 +156,7 @@ async function searchManga(keyword){
 
   try {
     
-    const response = await backendAPI.get(
+    const response = await backendAPIWithToken.get(
       `/mangaDexAPI/search-manga/${keyword}`,
       {
         headers: {

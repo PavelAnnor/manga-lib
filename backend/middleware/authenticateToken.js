@@ -12,18 +12,17 @@ function authenticateToken(req,res,next){
     
       const authHeader = req.headers["authorization"];
       const token = authHeader && authHeader.split(" ")[1];
-      console.log("autheHeader")
-      console.log(token)
+     
 
       
 
 
 
       //if no access token
-      if (token == null) {
+      if (token==="undefined") {
         res.status(401).json({
           success: false,
-          message: "No Access token prest",
+          message: "No Access token present",
           payload: null,
           error:
             "No Access token present in authorization Header. In the format 'bearer <token>",
@@ -40,15 +39,14 @@ function authenticateToken(req,res,next){
 
       // next()
     } catch (error) {
-
+        
         console.log(error.message)
         //Catch the custome http errors I threw
         if(error.customFrontEndMessage){
          res.set(
            "WWW-Authenticate",
            'Bearer error="invalid_token", error_description="Access token is expired or malformed"',
-         );
-         res.status(error.statusCode).json({
+         ).status(error.statusCode).json({
            success: false,
            error: "Access token is expired or malformed.",
            payload: null,
