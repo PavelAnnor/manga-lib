@@ -83,8 +83,8 @@ function verifyRefreshToken(token){
       case "JsonWebTokenError":
         throw new HTTPError(
           401,
-          "son",
-          "Token is malfored or invalid. Please log in againnnnn",
+          error.name,
+          "Token is malfored or invalid. Please log in again.",
         );
         break;
 

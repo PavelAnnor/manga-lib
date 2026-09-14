@@ -1,5 +1,31 @@
+import { createAuthRefresh } from "axios-auth-refresh";
 import axios from "axios";
 
+
+function refreshLogic(failedRequest) {
+  console.log("Attempting refresh");
+  const authenticateError = failedRequest.response.headers["www-authenticate"];
+
+  // If the issue isn't the access token, skip
+  if (!authenticateError) {
+    return Promise.resolve();
+  }
+
+  return refreshCycle()
+    .then((response) => {
+      console.log(response.payload);
+      setToken(response.payload.accessToken);
+
+      // This is the important part: update the failed request's
+      // auth header so the retry actually uses the new token
+      failedRequest.response.config.headers["Authorization"] =
+        "Bearer " + response.payload.accessToken;
+    })
+    .catch((error) => {
+      console.log(error);
+      return Promise.reject(error);
+    });
+}
 
 let accessToken;
 
@@ -7,7 +33,7 @@ function setToken(token){
   accessToken = token
 }
 
-const backendAPINoToken = axios.create({
+const backendAPI = axios.create({
   baseURL: "http://localhost:3000/api",
   headers: {
     "Content-Type": "application/json"
@@ -16,40 +42,16 @@ const backendAPINoToken = axios.create({
 
 });
 
-const backendAPIWithToken = axios.create({
-  baseURL: "http://localhost:3000/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  withCredentials: true,
-});
-
-backendAPIWithToken.interceptors.response.use(
-  (response)=>{
+//use the auth refresh library to inject the interceptor
+createAuthRefresh(backendAPI, refreshLogic);
 
 
-
-
- 
-  return response
-}
-,
-(error)=>{
-
-  if(error.response){
-  console.log(error.response)
-  console.log(error.response.data)
-  // console.log(error.response.data);
-  }
-
-
-
-})
 
 async function refreshCycle() {
 
     try {
-      const response = await backendAPINoToken.get("/refresh/refresh-cycle");
+      const response = await backendAPI.get("/refresh/refresh-cycle");
+
       // setToken(response.data.payload.accessToken);
       setToken("ahhaha");
 
@@ -72,7 +74,9 @@ async function refreshCycle() {
 async function loginUser(credentials){
 
   try {
-    const response = await backendAPINoToken.post("/users/login-user",credentials);
+    const response = await backendAPI.post("/users/login-user", credentials, {
+      skipAuthRefresh: true,
+    });
     return response.data
   } catch (error) {
 
@@ -102,7 +106,9 @@ async function createUser(credentials){
 
 
    try {
-     const response = await backendAPINoToken.post("/users/create-user", credentials);
+     const response = await backendAPI.post("/users/create-user", credentials, {
+       skipAuthRefresh: true,
+     });
      return response.data;
    } catch (error) {
      console.log(error.message);
@@ -128,7 +134,11 @@ async function logoutUser(){
 
    try {
     //attempt a logout post request with emoty body
-     const response = await backendAPINoToken.post("/users/logout-user", {});
+     const response = await backendAPI.post(
+       "/users/logout-user",
+       {},
+       { skipAuthRefresh: true },
+     );
      return response.data;
    } catch (error) {
      console.log(error.message);
@@ -156,7 +166,7 @@ async function searchManga(keyword){
 
   try {
     
-    const response = await backendAPIWithToken.get(
+    const response = await backendAPI.get(
       `/mangaDexAPI/search-manga/${keyword}`,
       {
         headers: {
