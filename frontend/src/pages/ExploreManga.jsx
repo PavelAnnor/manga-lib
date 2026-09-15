@@ -4,9 +4,11 @@ import SearchResultsContainer from "../components/custom/SearchResultsContainer.
 import { searchManga } from "../util/backendAPI.js"
 import SkeletonSearchResultsCard from "../components/custom/SkeletonSearchResultsCard.jsx"
 import SearchResultsCard from "../components/custom/SearchResultsCard.jsx"
+import ExploreOneManga from "./ExploreOneManga.jsx"
 export default function ExploreManga(){
     const [isLoading,setIsLoading] = useState(false)
     const [searchResults,setSearchResults] = useState(null)
+    const [selectedManga, setSelectedManga] = useState(null)
 
     return (
       <main>
@@ -19,24 +21,30 @@ export default function ExploreManga(){
         <SearchResultsContainer>
           {isLoading &&
             [0, 1, 2, 3, 4, 6].map((m) => (
-              <SkeletonSearchResultsCard key = {m*Math.random()}></SkeletonSearchResultsCard>
+              <SkeletonSearchResultsCard
+                key={m * Math.random()}
+              ></SkeletonSearchResultsCard>
             ))}
 
           {searchResults !== null && searchResults.length === 0 && (
-            <p>No Results</p>
+            <p className="text-[var(--primary-text)] text-center text-3xl w-full col-span-full">
+              No Results Found...
+            </p>
           )}
 
           {searchResults !== null &&
             searchResults.length > 0 &&
             searchResults.map((s) => (
               <SearchResultsCard
-                imgSrc={s.coverArt}
-                title={s.title}
-                author={s.author}
-                year={s.year}
+                manga={s}
                 key={s.mangaDexId}
+                setSelectedManga = {setSelectedManga}
               ></SearchResultsCard>
             ))}
+
+          <dialog id="my-modal">
+            {selectedManga && <ExploreOneManga manga={selectedManga} />}
+          </dialog>
         </SearchResultsContainer>
       </main>
     );

@@ -52,8 +52,8 @@ async function refreshCycle() {
     try {
       const response = await backendAPI.get("/refresh/refresh-cycle");
 
-      // setToken(response.data.payload.accessToken);
-      setToken("ahhaha");
+      setToken(response.data.payload.accessToken);
+      
 
       return response.data;
     } catch (error) {

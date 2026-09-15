@@ -1,19 +1,32 @@
-export default function SearchResultsCard({imgSrc,title,author,year}){
 
+import { Button } from "../ui/button.jsx";
+import {Link} from "react-router"
+import ExploreOneManga from "../../pages/ExploreOneManga.jsx";
+export default function SearchResultsCard({manga,setSelectedManga}){
+
+  const link = `./manga/${manga.mangaDexId}`
 
     return (
+      // <Link to = "./manga/sdfsdfsdf" >
       <div className="col-span-1 flex flex-col justify-center gap-2 text-[var(--primary-text)]">
         <img
-          className="w-full bg-[#1c1c1c] rounded-xl aspect-[6/10]"
-          src={imgSrc}
+          className="w-full bg-[#1c1c1c] rounded-xl aspect-[7/10] grow-1"
+          src={manga.coverArt}
         />
 
-        <p className="line-clamp-2 h-10 text-sm font-medium">{title}</p>
+        <div className="flex-col ">
+          <p className=" text-sm font-medium">{manga.title}</p>
 
-        <div className="flex gap-1 h-5 text-sm text-[var(--secondary-text)]">
-          <p className="truncate">{author},</p>
-          <p className="shrink-0">{year}</p>
+          <div className="flex gap-1  text-sm text-[var(--secondary-text)]">
+            <p className="">{manga.author},</p>
+            <p className="">{manga.year}</p>
+          </div>
+          <Button command = "show-modal" commandFor = "my-modal" onClick = {()=>{setSelectedManga(manga)}} className="bg-red-600" size="sm">Expand</Button>
         </div>
+
+       
+       
       </div>
+     
     );
 }

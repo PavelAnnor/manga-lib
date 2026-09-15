@@ -129,11 +129,7 @@ APP.get("/api/cleanse",(req, res) => {
 
 
 
-// APP.use((err, req, res, next) => {
-//   console.log('Error middleware triggered')
-//   console.error(err.message)
-//   res.status(500).json({ message: "Internal server error.", payload: null, error: err.message })
-// })
+
 
 
 

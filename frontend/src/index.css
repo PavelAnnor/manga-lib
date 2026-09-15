@@ -155,3 +155,22 @@
     @apply font-sans;
     }
 }
+
+dialog {
+
+  width:70%;
+  max-height: 80%;
+  
+  margin: auto;
+  
+
+
+}
+
+dialog::backdrop {
+  /* Blurs the content behind the dialog */
+  backdrop-filter: blur(8px);
+
+  /* Optional: Darkens the background slightly to make the dialog pop */
+  background-color: rgba(0, 0, 0, 0.4);
+}

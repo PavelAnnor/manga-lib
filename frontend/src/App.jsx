@@ -9,6 +9,7 @@ import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import ExploreManga from "./pages/ExploreManga.jsx";
+import ExploreOneManga from "./pages/ExploreOneManga.jsx";
 
 
 import {navbarLinks} from "./data/navbarLinks.js"
@@ -40,6 +41,7 @@ export default function App(){
             </ProtectedRoute>
           }
         ></Route>
+       
       </Routes>
     </>
   );
