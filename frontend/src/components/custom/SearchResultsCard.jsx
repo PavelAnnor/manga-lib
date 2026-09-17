@@ -21,7 +21,7 @@ export default function SearchResultsCard({manga,setSelectedManga}){
             <p className="">{manga.author},</p>
             <p className="">{manga.year}</p>
           </div>
-          <Button command = "show-modal" commandFor = "my-modal" onClick = {()=>{setSelectedManga(manga)}} className="bg-red-600" size="sm">Expand</Button>
+          <Button command = "show-modal" commandFor = "explore-modal" onClick = {()=>{setSelectedManga(manga)}} className="bg-red-600" size="sm">Expand</Button>
         </div>
 
        

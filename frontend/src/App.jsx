@@ -13,6 +13,7 @@ import ExploreOneManga from "./pages/ExploreOneManga.jsx";
 
 
 import {navbarLinks} from "./data/navbarLinks.js"
+import EditNotes from "./pages/EditNotes.jsx";
 export default function App(){
 
 
@@ -41,6 +42,8 @@ export default function App(){
             </ProtectedRoute>
           }
         ></Route>
+
+        <Route path = "/notes" element = {<EditNotes/>}></Route>
        
       </Routes>
     </>

@@ -42,7 +42,7 @@ export default function ExploreManga(){
               ></SearchResultsCard>
             ))}
 
-          <dialog id="my-modal">
+          <dialog id="explore-modal">
             {selectedManga && <ExploreOneManga manga={selectedManga} />}
           </dialog>
         </SearchResultsContainer>

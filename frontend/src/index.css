@@ -156,7 +156,7 @@
     }
 }
 
-dialog {
+dialog, #explore-modal{
 
   width:70%;
   max-height: 80%;
@@ -164,6 +164,13 @@ dialog {
   margin: auto;
   
 
+
+}
+
+dialog, #title-modal{
+
+  background: rgb(8, 23, 185)505;
+  max-width: 500px;
 
 }
 
