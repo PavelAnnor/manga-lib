@@ -51,11 +51,10 @@ export default function EditNotes() {
         <div className="mt-3 lg:hidden">
           <DropdownMenu>
             <DropdownMenuTrigger render={<Button variant="outline" />}>
-              Open
+                Open Documents
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuGroup>
-                <DropdownMenuLabel>Notes</DropdownMenuLabel>
                 <DropdownMenuItem>Chapter 1</DropdownMenuItem>
                 <DropdownMenuItem>Chapter 2</DropdownMenuItem>
               </DropdownMenuGroup>

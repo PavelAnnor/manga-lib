@@ -1,16 +1,28 @@
 import { Button } from "../components/ui/button.jsx";
 import {Link} from "react-router"
+import { useAddMangaSubmission } from "../util/backendAPI.js";
 
 
 export default function ExploreOneManga({manga}){
 
+  const addManga = useAddMangaSubmission()
 
+    function handleMangaAdd(){
+
+      const detials = {userId: "test,",mangaDexIdtitle:manga.title, coverArt:manga.coverArt}
+
+
+
+      
+
+
+    }
     const mangaDexLink = `https://mangadex.org/title/${manga.mangaDexId}`;
 
 
 
     return (
-      <div className="  flex flex-col  items-center  h-full bg-[var(--background)] text-[var(--primary-text)] border-2 border-[var(--primary-border)] relative pt-8  pb-8 overflow-auto md:flex-row">
+      <div className="  flex flex-col  items-center  h-full bg-[var(--background)] text-[var(--primary-text)] border-2 border-[var(--primary-border)] relative pt-8  pb-8 overflow-auto md:flex-row w-full">
         <Button
           className=" bg-red-500 absolute top-3 right-3"
           type="button"
@@ -40,7 +52,7 @@ export default function ExploreOneManga({manga}){
             <Link to = {mangaDexLink} target="_blank">
               <Button className="bg-orange-500">Read</Button>
             </Link>
-            <Button className="bg-blue-500">Add</Button>
+            <Button className="bg-blue-500" onClick = {handleMangaAdd}>Add</Button>
           </div>
           <div className="md:flex md:flex-wrap gap-2 hidden p-3">
             {manga.tags.map((t) => (

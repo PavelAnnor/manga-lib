@@ -1,5 +1,6 @@
 import { createAuthRefresh } from "axios-auth-refresh";
 import axios from "axios";
+import { useQuery, useMutation,useQueryClient } from "@tanstack/react-query";
 
 
 function refreshLogic(failedRequest) {
@@ -196,8 +197,77 @@ async function searchManga(keyword){
 }
 
 
+async function addManga(mangaData) {
+  try {
+
+    const response = await backendAPI.post(
+      "/mangaSubmissions/add-manga-submission",mangaData
+    );
+
+     return response.data;
+    
+  } catch (error) {
+
+     console.log(error.message);
+
+     if (error.response) {
+       return error.response.data;
+     }
+
+     //If its here (or backend isnt running properly)
+     return {
+       success: false,
+       message: "Network Error",
+       payload: null,
+       error: error.message,
+     };
+    
+  }
+  
+}
+
+async function getMangaData(credentials) {
+  
+  try {
+
+    const response = await backendAPI.get("/")
+     return response.data;
+    
+  } catch (error) {
+
+      if (error.response) {
+        return error.response.data;
+      }
+
+      //If its here (or backend isnt running properly)
+      return {
+        success: false,
+        message: "Network Error",
+        payload: null,
+        error: error.message,
+      };
+    
+  }
+}
+
+
+function useAddMangaSubmission() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (params) => addManga(params),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["mangaSubmissions"] }),
+  });
+}
+
+function useMangaSubmissions(params) {
+  return useQuery({
+    queryKey: ["mangaSubmissions", params],
+    queryFn: () => getMangaData(params),
+  });
+}
 
 
 
 
-export { loginUser, createUser, logoutUser, refreshCycle, searchManga,setToken };
+export { loginUser, createUser, logoutUser, refreshCycle, searchManga,setToken,useAddMangaSubmission};

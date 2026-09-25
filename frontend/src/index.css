@@ -158,11 +158,10 @@
 
 dialog, #explore-modal{
 
-  width:70%;
-  max-height: 80%;
+ 
   
   margin: auto;
-  
+  max-width: 1000px;
 
 
 }

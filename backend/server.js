@@ -21,7 +21,7 @@ const allowedOrigins = [
 import userRoutes from "./routes/userRoutes.js";
 import refreshRoutes from "./routes/refreshRoutes.js"
 import mangaDexAPIRoutes from "./routes/mangaDexAPIRoutes.js"
-
+import mangaSubmissionRoutes from "./routes/mangaSubmissionsRoutes.js"
 
 
 
@@ -30,6 +30,8 @@ APP.use(express.json())
 APP.use(express.urlencoded({extended:true}))
 APP.use(cookieParser());
 //CORS middleware to allow requests from the frontend
+
+
 APP.use(
   cors({
     origin: allowedOrigins,
@@ -38,6 +40,7 @@ APP.use(
     exposedHeaders: ["WWW-Authenticate"], // 👈 this is the missing piece
   }),
 );
+
 
 
 
@@ -60,6 +63,7 @@ APP.use("/api/refresh",refreshRoutes)
 //Middle ware to check for and veirify access token beofre accessing certain resoruces 
 APP.use(authenticateToken)
 APP.use("/api/mangaDexAPI",mangaDexAPIRoutes)
+APP.use("/api/mangaSubmissions",mangaSubmissionRoutes)
 
 
 APP.get("/api/cookies",(req, res) => {
